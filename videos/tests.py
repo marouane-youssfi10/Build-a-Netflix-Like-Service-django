@@ -2,11 +2,12 @@ from django.test import TestCase
 from django.utils import timezone
 from .models import Video
 from django.utils.text import slugify
+from djangoflix.db.models import PublishStateOptions
 
 class VideoModelTestCase(TestCase):
     def setUp(self):
         self.obj_a = Video.objects.create(title='This is my title', video_id='abc')
-        self.obj_b = Video.objects.create(title='This is my title', state=Video.VideoStateOptions.PUBLISH, video_id='abcdefgh')
+        self.obj_b = Video.objects.create(title='This is my title', state=PublishStateOptions.PUBLISH, video_id='abcdefgh')
 
     def test_slug_field(self):
         title = self.obj_a.title
@@ -23,14 +24,14 @@ class VideoModelTestCase(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_draft_case(self):
-        qs = Video.objects.filter(state=Video.VideoStateOptions.DRAFT)
+        qs = Video.objects.filter(state=PublishStateOptions.DRAFT)
         self.assertEqual(qs.count(), 1)
 
     def test_publish_case(self):
         # qs = Video.objects.filter(state=Video.VideoStateOptions.PUBLISH)
         now = timezone.now()
         published_qs = Video.objects.filter(
-            publish_timestamp__lte=now, state=Video.VideoStateOptions.PUBLISH
+            publish_timestamp__lte=now, state=PublishStateOptions.PUBLISH
         )
         self.assertTrue(published_qs.exists())
 
