@@ -10,3 +10,7 @@ class VideoModelTestCase(TestCase):
         title = 'This is my title'
         qs = Video.objects.filter(title=title)
         self.assertTrue(qs.exists())
+
+    def test_created_count(self):
+        qs = Video.objects.all()
+        self.assertEqual(qs.count(), 1)
