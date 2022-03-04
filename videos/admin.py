@@ -2,10 +2,10 @@ from django.contrib import admin
 from .models import VideoAllProxy, VideoPublishedProxy
 
 class VideoAllAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'state', 'video_id', 'is_published']
+    list_display = ['id', 'title', 'state', 'video_id', 'is_published', 'publish_timestamp']
     search_fields = ['title']
     list_filter = ['state', 'active']
-    readonly_fields = ['id', 'is_published']
+    readonly_fields = ['id', 'is_published', 'publish_timestamp']
     class Meta:
         model = VideoAllProxy
 
