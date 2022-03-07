@@ -25,11 +25,8 @@ class Playlist(models.Model):
     title = models.CharField(max_length=220)
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
-    video = models.ForeignKey(Video, null=True, blank=True,
-                              on_delete=models.SET_NULL,
-                              related_name='playlist_featured',
-                              through='PlaylistItem') # one video per playlist
-    videos = models.ManyToManyField(Video, blank=True, related_name='playlist_item')
+    video = models.ForeignKey(Video, related_name='playlist_featured', blank=True, null=True, on_delete=models.SET_NULL)
+    videos = models.ManyToManyField(Video, related_name='playlist_item', blank=True, through='PlaylistItem')
     active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -53,3 +50,7 @@ class PlaylistItem(models.Model):
     order = models.IntegerField(default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    # objects = PlaylistItemManager()
+
+    class Meta:
+        ordering = ['order', '-timestamp']
