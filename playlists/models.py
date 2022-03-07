@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
 from videos.models import Video
+from categories.models import Category
 
 class PlaylistQuerySet(models.QuerySet):
     def published(self):
@@ -29,6 +30,7 @@ class Playlist(models.Model):
         PLAYLIST = "PLY", "Playlist"
 
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
+    category = models.ForeignKey(Category, related_name='playlists', blank=True, null=True, on_delete=models.SET_NULL)
     order = models.IntegerField(default=1)
     title = models.CharField(max_length=220)
     type = models.CharField(max_length=3, choices=PlaylistTypeChoices.choices, default=PlaylistTypeChoices.PLAYLIST)
