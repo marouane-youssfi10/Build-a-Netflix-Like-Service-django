@@ -26,7 +26,9 @@ class Playlist(models.Model):
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
     video = models.ForeignKey(Video, null=True, blank=True,
-                              on_delete=models.SET_NULL, related_name='playlist_featured') # one video per playlist
+                              on_delete=models.SET_NULL,
+                              related_name='playlist_featured',
+                              through='PlaylistItem') # one video per playlist
     videos = models.ManyToManyField(Video, blank=True, related_name='playlist_item')
     active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -42,4 +44,12 @@ class Playlist(models.Model):
 
 pre_save.connect(publish_state_pre_save, sender=Playlist)
 pre_save.connect(slugify_pre_save, sender=Playlist)
+
+class PlaylistItem(models.Model):
+    # playlist_obj.playlistitem_set.all() -> PlaylistItem.objects.all()
+    # qs = PlaylistItem.objects.filter(playlist=my_playlist_obj).order_by('order')
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    order = models.IntegerField(default=1)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
