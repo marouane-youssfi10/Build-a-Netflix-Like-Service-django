@@ -37,6 +37,9 @@ class Playlist(models.Model):
 
     objects = PlaylistManager()
 
+    def __str__(self):
+        return self.title
+
     @property
     def is_published(self):
         return self.active
@@ -52,6 +55,8 @@ class TVShowProxyManager(PlaylistManager):
 class TVShowProxy(Playlist):
 
     objects = TVShowProxyManager()
+
+
     class Meta:
         verbose_name = 'Tv Show'
         verbose_name_plural = 'Tv Shows'
