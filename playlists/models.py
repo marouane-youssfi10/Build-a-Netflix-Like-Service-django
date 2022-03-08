@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db.models import Avg, Max, Min
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
 from django.contrib.contenttypes.fields import GenericRelation
@@ -52,6 +53,12 @@ class Playlist(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_rating_avg(self):
+        return Playlist.objects.filter(id=self.id).aggregate(Avg("ratings_value"))
+
+    def get_rating_spread(self):
+        return Playlist.objects.filter(id=self.id).aggregate(max=Max(("ratings_value",), min=Min("ratings_value",)))
 
     @property
     def is_published(self):

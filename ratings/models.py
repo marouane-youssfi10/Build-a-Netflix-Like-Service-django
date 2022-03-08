@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+
 User = settings.AUTH_USER_MODEL
 
 class RatingChoices(models.IntegerChoices):
@@ -14,11 +15,11 @@ class RatingChoices(models.IntegerChoices):
 
     __empty__ = 'Unknown'
 
-Rating.objects.aggregate(Avg("rating"))
+# Rating.objects.aggregate(Avg("value"))
 
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.IntegerField(null=True, blank=True, choices=RatingChoices.choices)
+    value = models.IntegerField(null=True, blank=True, choices=RatingChoices.choices)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
