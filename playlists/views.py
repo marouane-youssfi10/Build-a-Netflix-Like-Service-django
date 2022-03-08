@@ -1,26 +1,25 @@
 from django.shortcuts import render
-from .models import MovieProxy, TVShowProxy
+from .models import Playlist, MovieProxy, TVShowProxy
 from django.views.generic import ListView
 
-class TitleMixin():
+class PlaylistMixin():
+    template_name = 'playlist_list.html'
     title = None
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        print(context)
-        context['title'] = self.title
+        if self.title is not None:
+            context['title'] = self.title
         return context
 
-class MovieListView(TitleMixin, ListView):
-    template_name = 'playlist_list.html'
+class MovieListView(PlaylistMixin, ListView):
     queryset = MovieProxy.objects.all()
     title = "Movies"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        print(context)
-        context['title'] = self.title
-        return context
-
-class TVShowListView(TitleMixin, ListView):
+class TVShowListView(PlaylistMixin, ListView):
     template_name = 'playlist_list.html'
     queryset = TVShowProxy.objects.all()
+    title = "Tv Shows"
+
+class FeaturedPlaylistListView(PlaylistMixin, ListView):
+    queryset = Playlist.objects.featured_playlists()
+    title = "Featured"

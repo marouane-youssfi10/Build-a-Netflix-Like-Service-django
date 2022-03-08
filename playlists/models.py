@@ -26,6 +26,9 @@ class PlaylistManager(models.Manager):
     def published(self):
         return self.get_queryset().published()
 
+    def featured_playlists(self):
+        return self.get_queryset().filter(type=Playlist.PlaylistTypeChoices.PLAYLIST)
+
 class Playlist(models.Model):
     class PlaylistTypeChoices(models.TextChoices):
         MOVIE = "MOV", "Movie"
@@ -60,6 +63,9 @@ class Playlist(models.Model):
     def get_rating_spread(self):
         return Playlist.objects.filter(id=self.id).aggregate(max=Max(("ratings_value",), min=Min("ratings_value",)))
 
+    def get_short_display(self):
+        return ""
+
     @property
     def is_published(self):
         return self.active
@@ -82,6 +88,9 @@ class TVShowProxy(Playlist):
     def save(self, *args, **kwargs):
         self.type = Playlist.PlaylistTypeChoices.SHOW
         super().save(*args, **kwargs)
+
+    def get_short_display(self):
+        return f"{self.playlist_set.count} Seasons"
 
 class MovieProxyManager(PlaylistManager):
     def all(self):
