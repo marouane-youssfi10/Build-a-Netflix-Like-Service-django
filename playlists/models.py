@@ -4,9 +4,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Avg, Max, Min
 from djangoflix.db.models import PublishStateOptions
-from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
 from django.contrib.contenttypes.fields import GenericRelation
-
 from videos.models import Video
 from categories.models import Category
 from tags.models import TaggedItem
@@ -138,14 +136,17 @@ class PlaylistItem(models.Model):
     class Meta:
         ordering = ['order', '-timestamp']
 
+from djangoflix.db.receivers import unique_slugify_pre_save
+from djangoflix.db.receivers import publish_state_pre_save
+
 pre_save.connect(publish_state_pre_save, sender=TVShowProxy)
-pre_save.connect(slugify_pre_save, sender=TVShowProxy)
+pre_save.connect(unique_slugify_pre_save, sender=TVShowProxy)
 
 pre_save.connect(publish_state_pre_save, sender=MovieProxy)
-pre_save.connect(slugify_pre_save, sender=MovieProxy)
+pre_save.connect(unique_slugify_pre_save, sender=MovieProxy)
 
 pre_save.connect(publish_state_pre_save, sender=TVShowSeasonProxy)
-pre_save.connect(slugify_pre_save, sender=TVShowSeasonProxy)
+pre_save.connect(unique_slugify_pre_save, sender=TVShowSeasonProxy)
 
 pre_save.connect(publish_state_pre_save, sender=Playlist)
-pre_save.connect(slugify_pre_save, sender=Playlist)
+pre_save.connect(unique_slugify_pre_save, sender=Playlist)
