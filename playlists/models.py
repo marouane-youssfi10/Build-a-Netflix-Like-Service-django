@@ -61,20 +61,38 @@ class Playlist(models.Model):
     def get_rating_spread(self):
         return Playlist.objects.filter(id=self.id).aggregate(max=Max(("ratings_value",), min=Min("ratings_value",)))
 
-    def get_short_display(self):
-        return ""
+
+    def get_video_id(self):
+        if not self.is_published:
+            return None
+        return self.video_id
 
     @property
     def is_published(self):
+        if self.active is False:
+            return False
         state = self.state
-        if state == PublishStateOptions.PUBLISH:
-            pub_timestamp = self.publish_timestamp
-            now = timezone.now()
-            if pub_timestamp is None:
-                return False
-            return pub_timestamp <= now
-        return False
+        if state != PublishStateOptions.PUBLISH:
+            return False
+        pub_timestamp = self.publish_timestamp
+        if pub_timestamp is None:
+            return False
+        now = timezone.now()
+        return pub_timestamp <= now
 
+    def get_video_id(self):
+        """
+        get main video id to render video for users
+        """
+        if self.video is None:
+            return None
+        return self.video.get_video_id()
+
+    def get_clips(self):
+        """
+        get clips to render movie clips for users
+        """
+        return self.playlistitem_set.all().published()
 
 class TVShowProxyManager(PlaylistManager):
     def all(self):
@@ -98,6 +116,7 @@ class TVShowProxy(Playlist):
     def get_short_display(self):
         return f"{self.seasons.count()} Seasons"
 
+
 class MovieProxyManager(PlaylistManager):
     def all(self):
         return self.get_queryset().filter(type=Playlist.PlaylistTypeChoices.MOVIE)
@@ -105,11 +124,11 @@ class MovieProxyManager(PlaylistManager):
 class MovieProxy(Playlist):
     objects = MovieProxyManager()
 
-    def get_movie(self):
-        return self.video
-
-    def get_clips(self):
-        return self.playlistitem_set.all()
+    def get_movie_id(self):
+        """
+        get movie id to render movie for users
+        """
+        return self.get_video_id()
 
     class Meta:
         verbose_name = 'Movie'
@@ -136,6 +155,35 @@ class TVShowSeasonProxy(Playlist):
         self.type = Playlist.PlaylistTypeChoices.SEASON
         super().save(*args, **kwargs)
 
+    def get_season_trailer(self):
+        """
+        get episodes to render clips for users
+        """
+        return self.get_video_id()
+
+    def get_episodes(self):
+        """
+        get episodes to render clips for users
+        """
+        return self.playlistitem_set.all().published()
+
+class PlaylistItemQuerySet(models.QuerySet):
+    def published(self):
+        now = timezone.now()
+        return self.filter(
+            playlist__state=PublishStateOptions.PUBLISH,
+            playlist__publish_timestamp__lte=now,
+            video__state=PublishStateOptions.PUBLISH,
+            video__publish_timestamp__lte=now
+        )
+
+class PlaylistItemManager(models.Manager):
+    def get_queryset(self):
+        return PlaylistItemQuerySet(self.model, using=self._db)
+
+    def published(self):
+        return self.get_queryset().published()
+
 class PlaylistItem(models.Model):
     # playlist_obj.playlistitem_set.all() -> PlaylistItem.objects.all()
     # qs = PlaylistItem.objects.filter(playlist=my_playlist_obj).order_by('order')
@@ -144,7 +192,7 @@ class PlaylistItem(models.Model):
     order = models.IntegerField(default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    # objects = PlaylistItemManager()
+    objects = PlaylistItemManager()
 
     class Meta:
         ordering = ['order', '-timestamp']
