@@ -4,8 +4,11 @@ from django.utils import timezone
 from django.utils.text import slugify
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
+from django.contrib.contenttypes.fields import GenericRelation
+
 from videos.models import Video
 from categories.models import Category
+from tags.models import TaggedItem
 
 class PlaylistQuerySet(models.QuerySet):
     def published(self):
@@ -43,6 +46,7 @@ class Playlist(models.Model):
     updated = models.DateTimeField(auto_now=True)
     state = models.CharField(max_length=2, choices=PublishStateOptions.choices, default=PublishStateOptions.DRAFT)
     publish_timestamp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
+    tags = GenericRelation(TaggedItem, related_query_name='playlist')
 
     objects = PlaylistManager()
 
