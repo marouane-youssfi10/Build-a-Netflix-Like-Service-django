@@ -53,9 +53,13 @@ class TVShowSeasonDetailView(PlaylistMixin, DetailView):
                 slug__iexact=season_slug
             )
         except TVShowSeasonProxy.MultipleIbjectsReturend:
-            obj = None
+            qs = TVShowSeasonProxy.objects.filter(
+                parent__slug_iexact=show_slug,
+                slug__iexact=season_slug
+            ).published()
+            obj = qs.first()
         except:
-            obj = None
+            raise Http404
         return obj
 
 class FeaturedPlaylistListView(PlaylistMixin, ListView):

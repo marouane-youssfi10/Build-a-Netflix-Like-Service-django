@@ -33,7 +33,7 @@ urlpatterns = [
 
     path('media/<int:pk>/', PlaylistDetailView.as_view()),
 
-    path('shows/<slug:showSlug>/seasons/<slug:seasonSlug>/', TVShowSeasonDetailView.as_view()),
+    path('shows/<slug:showSlug>/seasons/<int:id>/', TVShowSeasonDetailView.as_view()),
     path('shows/<slug:slug>/seasons/', TVShowDetailView.as_view()),
     path('shows/<slug:slug>/', TVShowDetailView.as_view()),
     path('shows/', TVShowListView.as_view()),

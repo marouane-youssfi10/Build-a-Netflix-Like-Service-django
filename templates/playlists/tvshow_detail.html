@@ -12,6 +12,6 @@
     {{ object.slug }} {{ object.get_short_display }}
 
     {% for season in object.seasons %}
-        <li>{{ season.order }}  {{ season.title }} {{ season.slug }}</li>
+        <li>{{ season.order }}  {{ season.title }} {{ season.slug }} {{season.id}} </li>
     {% endfor %}
 {% endblock content %}
