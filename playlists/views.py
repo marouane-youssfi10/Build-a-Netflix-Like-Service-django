@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import Playlist, MovieProxy, TVShowProxy
 from django.views.generic import ListView
 
