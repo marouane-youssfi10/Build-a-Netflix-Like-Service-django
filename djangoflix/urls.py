@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-from playlists.views import MovieListView, TVShowListView, FeaturedPlaylistListView
+from playlists.views import (
+    MovieListView, TVShowListView, FeaturedPlaylistListView,
+    MovieDetailView, PlaylistDetailView, TVShowDetailView, TVShowSeasonDetailView
+)
 
 
 urlpatterns = [
@@ -25,13 +28,13 @@ urlpatterns = [
 
     path('', FeaturedPlaylistListView.as_view()),
 
-    path('movies/<slug:slug>/', MovieListView.as_view()),
+    path('movies/<slug:slug>/', MovieDetailView.as_view()),
     path('movies/', MovieListView.as_view()),
 
-    path('media/<int:id>/', FeaturedPlaylistListView.as_view()),
+    path('media/<int:pk>/', PlaylistDetailView.as_view()),
 
-    path('shows/<slug:showSlug>/seasons/<slug:seasonSlug>/', TVShowListView.as_view()),
-    path('shows/<slug:slug>/seasons/', TVShowListView.as_view()),
-    path('shows/<slug:slug>/', TVShowListView.as_view()),
+    path('shows/<slug:showSlug>/seasons/<slug:seasonSlug>/', TVShowSeasonDetailView.as_view()),
+    path('shows/<slug:slug>/seasons/', TVShowDetailView.as_view()),
+    path('shows/<slug:slug>/', TVShowDetailView.as_view()),
     path('shows/', TVShowListView.as_view()),
 ]
