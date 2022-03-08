@@ -1,6 +1,8 @@
+from django.http import Http404
 from .models import Playlist, MovieProxy, TVShowProxy, TVShowSeasonProxy
 from django.views.generic import ListView, DetailView
-
+from django.utils import timezone
+from djangoflix.db.models import PublishStateOptions
 class PlaylistMixin():
     template_name = 'playlist_list.html'
     title = None
@@ -42,10 +44,19 @@ class TVShowSeasonDetailView(PlaylistMixin, DetailView):
         kwargs = self.kwargs
         show_slug = kwargs.get("showSlug")
         season_slug = kwargs.get("seasonSlug")
-        qs = self.get_queryset().filter(parent__slug__iexcat=show_slug, slug__iexact=season_slug)
-        if not qs.count() == 1:
-            raise Exception("Not found")
-        return qs.first()
+        now = timezone.now()
+        try:
+            obj = TVShowSeasonProxy.objects.get(
+                state=PublishStateOptions.PUBLISH,
+                publish_timestamp__lte=now,
+                parent__slug_iexact=show_slug,
+                slug__iexact=season_slug
+            )
+        except TVShowSeasonProxy.MultipleIbjectsReturend:
+            obj = None
+        except:
+            obj = None
+        return obj
 
 class FeaturedPlaylistListView(PlaylistMixin, ListView):
     queryset = Playlist.objects.featured_playlists()
