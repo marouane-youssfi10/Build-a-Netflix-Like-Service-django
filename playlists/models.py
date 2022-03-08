@@ -66,8 +66,14 @@ class Playlist(models.Model):
 
     @property
     def is_published(self):
-        return self.active
-
+        state = self.state
+        if state == PublishStateOptions.PUBLISH:
+            pub_timestamp = self.publish_timestamp
+            now = timezone.now()
+            if pub_timestamp is None:
+                return False
+            return pub_timestamp <= now
+        return False
 
 
 class TVShowProxyManager(PlaylistManager):
@@ -98,6 +104,13 @@ class MovieProxyManager(PlaylistManager):
 
 class MovieProxy(Playlist):
     objects = MovieProxyManager()
+
+    def get_movie(self):
+        return self.video
+
+    def get_clips(self):
+        return self.playlistitem_set.all()
+
     class Meta:
         verbose_name = 'Movie'
         verbose_name_plural = 'Movies'

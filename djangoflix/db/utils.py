@@ -1,7 +1,6 @@
 import string
 import random
 from django.utils.text import slugify
-from playlists.models import Playlist
 
 def get_random_string(size=4, chars=string.ascii_lowercase + string.digits):
     return "".join([random.choice(chars) for _ in range(size)])
